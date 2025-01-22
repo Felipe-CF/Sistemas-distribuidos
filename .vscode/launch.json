@@ -1,23 +1,15 @@
 {
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        
         {
-            "name": "Servidor",
+            "name": "Python Debugger: Python File",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/servidor_chat.py"
-        },
-        {
-            "name": "Jogador",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/chat2.py"
-        }
-    ],
-    "compounds": [
-        {
-            "name": "Debugar ambos",
-            "configurations": ["Servidor", "Jogador"]
+            "program": "${file}"
         }
     ]
 }
