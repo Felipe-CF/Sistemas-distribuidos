@@ -1,6 +1,6 @@
 import grpc
-import teste_pb2_grpc as pb2_grpc
-import teste_pb2 as pb2
+import ProtoBUffer_pb2_grpc as pb2_grpc
+import ProtoBUffer_pb2 as pb2
 from concurrent import futures
 
 class DandoOiService(pb2_grpc.DandoOiServicer):
