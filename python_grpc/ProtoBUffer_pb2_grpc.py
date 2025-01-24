@@ -25,7 +25,7 @@ if _version_not_supported:
     )
 
 
-class UploadServiceStub(object):
+class UploadServicoStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -35,13 +35,13 @@ class UploadServiceStub(object):
             channel: A grpc.Channel.
         """
         self.ServicoUploadArquivo = channel.unary_unary(
-                '/UploadService/ServicoUploadArquivo',
+                '/ProjetoGrpc.UploadServico/ServicoUploadArquivo',
                 request_serializer=ProtoBUffer__pb2.DadosArquivo.SerializeToString,
                 response_deserializer=ProtoBUffer__pb2.UploadResposta.FromString,
                 _registered_method=True)
 
 
-class UploadServiceServicer(object):
+class UploadServicoServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def ServicoUploadArquivo(self, request, context):
@@ -51,7 +51,7 @@ class UploadServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_UploadServiceServicer_to_server(servicer, server):
+def add_UploadServicoServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'ServicoUploadArquivo': grpc.unary_unary_rpc_method_handler(
                     servicer.ServicoUploadArquivo,
@@ -60,13 +60,13 @@ def add_UploadServiceServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'UploadService', rpc_method_handlers)
+            'ProjetoGrpc.UploadServico', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('UploadService', rpc_method_handlers)
+    server.add_registered_method_handlers('ProjetoGrpc.UploadServico', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class UploadService(object):
+class UploadServico(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -83,7 +83,7 @@ class UploadService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/UploadService/ServicoUploadArquivo',
+            '/ProjetoGrpc.UploadServico/ServicoUploadArquivo',
             ProtoBUffer__pb2.DadosArquivo.SerializeToString,
             ProtoBUffer__pb2.UploadResposta.FromString,
             options,

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package ProjetoGrpc;
+
+message DadosArquivo {
+  string nome = 1;
+  bytes conteudo = 2;
+}
+
+message UploadResposta {
+  string mensagem = 1;
+}
+
+service UploadServico {
+  rpc ServicoUploadArquivo(DadosArquivo) returns (UploadResposta);
+}

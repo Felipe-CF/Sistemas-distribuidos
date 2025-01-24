@@ -24,17 +24,17 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11ProtoBUffer.proto\".\n\x0c\x44\x61\x64osArquivo\x12\x0c\n\x04nome\x18\x01 \x01(\t\x12\x10\n\x08\x63onteudo\x18\x02 \x01(\x0c\"\"\n\x0eUploadResposta\x12\x10\n\x08mensagem\x18\x01 \x01(\t2G\n\rUploadService\x12\x36\n\x14ServicoUploadArquivo\x12\r.DadosArquivo\x1a\x0f.UploadRespostab\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11ProtoBUffer.proto\x12\x0bProjetoGrpc\".\n\x0c\x44\x61\x64osArquivo\x12\x0c\n\x04nome\x18\x01 \x01(\t\x12\x10\n\x08\x63onteudo\x18\x02 \x01(\x0c\"\"\n\x0eUploadResposta\x12\x10\n\x08mensagem\x18\x01 \x01(\t2_\n\rUploadServico\x12N\n\x14ServicoUploadArquivo\x12\x19.ProjetoGrpc.DadosArquivo\x1a\x1b.ProjetoGrpc.UploadRespostab\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ProtoBUffer_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_DADOSARQUIVO']._serialized_start=21
-  _globals['_DADOSARQUIVO']._serialized_end=67
-  _globals['_UPLOADRESPOSTA']._serialized_start=69
-  _globals['_UPLOADRESPOSTA']._serialized_end=103
-  _globals['_UPLOADSERVICE']._serialized_start=105
-  _globals['_UPLOADSERVICE']._serialized_end=176
+  _globals['_DADOSARQUIVO']._serialized_start=34
+  _globals['_DADOSARQUIVO']._serialized_end=80
+  _globals['_UPLOADRESPOSTA']._serialized_start=82
+  _globals['_UPLOADRESPOSTA']._serialized_end=116
+  _globals['_UPLOADSERVICO']._serialized_start=118
+  _globals['_UPLOADSERVICO']._serialized_end=213
 # @@protoc_insertion_point(module_scope)
