@@ -102,26 +102,36 @@
 
         // Função para deletar arquivo
         function deletarArquivo() {
-            const fileName = document.getElementById('fileNameDelete').value;
-            
-            if (!fileName) {
-                alert('Por favor, insira o nome do arquivo');
-                return;
-            }
+    const fileName = document.getElementById('fileNameDelete').value;
 
-            fetch(`${gatewayURL}/delete/${fileName}`, {
-                method: 'DELETE'
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('Arquivo deletado com sucesso!');
-                console.log(data);
-            })
-            .catch(error => {
-                alert('Erro ao deletar arquivo');
-                console.error(error);
-            });
-        }
+    if (!fileName) {
+        alert('Por favor, insira o nome do arquivo');
+        return;
+    }
+
+    // Monta o corpo da requisição como um objeto JSON
+    const body = JSON.stringify({
+        fileName: fileName
+    });
+
+    fetch(`${gatewayURL}/delete`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json' // Define o tipo de conteúdo como JSON
+        },
+        body: body // Envia o JSON no corpo da requisição
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Arquivo deletado com sucesso!');
+        console.log(data);
+    })
+    .catch(error => {
+        alert('Erro ao deletar arquivo');
+        console.error(error);
+    });
+}
+
     
     </script>
 </body>

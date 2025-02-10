@@ -1,19 +1,16 @@
 using System.Text;
-using System.Xml.Linq;
 using System.Xml.Serialization;
 using ApiUpload;
 
-// criação da API
 var builder = WebApplication.CreateBuilder(args);
 
-// Adiciona o suporte ao XML para o controlador serializar e desserializar XML
 builder.Services.AddControllers().AddXmlSerializerFormatters();
 
 var api = builder.Build();
 
 api.UseHttpsRedirection();
 
-// Endpoint para salvar o arquivo via XML
+// Endpoint para baixar o arquivo via XML
 api.MapGet("/download", async (HttpContext context) =>
 {
     try
@@ -25,7 +22,7 @@ api.MapGet("/download", async (HttpContext context) =>
         
         Console.WriteLine("2. XML recebido:");
 
-        var serializer = new XmlSerializer(typeof(DownloadRequest));
+        var serializer = new XmlSerializer(typeof(DeleteRequest));
         
         Console.WriteLine("3. Iniciando desserialização");
         using var stringReader = new StringReader(xmlContent);
@@ -66,5 +63,36 @@ api.MapGet("/download", async (HttpContext context) =>
         return Results.Problem($"Erro ao processar a requisição: {ex.Message}");
     }
 });
+
+// Endpoint para deletar o arquivo via XML
+api.MapPost("/delete", async (HttpContext context) =>
+{
+    try
+    {
+        using var reader_request = new StreamReader(context.Request.Body, Encoding.UTF8);
+        var xmlContent = await reader_request.ReadToEndAsync();
+
+        var serializer = new XmlSerializer(typeof(DeleteRequest));
+        using var stringReader = new StringReader(xmlContent);
+        var request = (DeleteRequest?)serializer.Deserialize(stringReader);
+
+        if (request == null)
+            return Results.BadRequest("Formato XML inválido");
+
+        string filePath = Path.Combine(@"C:\Users\FelipeCF\Desktop\Codigos\Sistemas-distribuidos\ApiUpload\uploads", request.FileName);
+
+        if (!File.Exists(filePath))
+            return Results.NotFound($"Arquivo '{request.FileName}' não encontrado");
+
+        File.Delete(filePath);
+
+        return Results.Ok($"Arquivo '{request.FileName}' deletado com sucesso");
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"Erro ao processar a requisição: {ex.Message}");
+    }
+});
+
 
 api.Run();

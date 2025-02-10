@@ -10,3 +10,10 @@ public class DownloadRequest
     [XmlElement("FileName")] 
     public string FileName { get; set; }
 }
+
+[XmlRoot("DeleteRequest")]
+public class DeleteRequest
+{
+    [XmlElement("FileName")] 
+    public string FileName { get; set; }
+}

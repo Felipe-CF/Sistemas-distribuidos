@@ -2,7 +2,6 @@ import base64
 import requests
 from flask_cors import CORS
 from flask import Flask, request, jsonify, send_file
-from io import BytesIO
 
 app = Flask(__name__)
 CORS(app)
@@ -36,40 +35,32 @@ def upload_arquivo():
     return jsonify({"message": "arquivo foi salvo"}), response.status_code
 
 
-@app.route("/download", methods=["GET"])
-def download_arquivo():
+@app.route("/delete", methods=["DELETE"])
+def delete_arquivo():
     
-    print("aqui")
-    file_name = request.args.get('fileName')
+    file_name = request.get_json().get('fileName')
 
     if not file_name:
         return jsonify({"message": "Nome do arquivo não informado"}), 400
 
     xml_data = f"""
-        <DownloadRequest>
+        <DeleteRequest>
             <FileName>{file_name}</FileName>
-        </DownloadRequest>
+        </DeleteRequest>
     """
 
-    url = "http://127.0.0.1:8002/download"
+    url = "http://127.0.0.1:8002/delete"
 
     # Enviar XML para a API C# usando requests
     headers = {'Content-Type': 'application/xml'}
 
-    response = requests.get(url=url, data=xml_data, headers=headers)
+    response = requests.post(url=url, data=xml_data, headers=headers)
 
-    print("aqui")
 
     if response.status_code != 200:
         return jsonify({"message": "Erro ao buscar arquivo na API C#"}), 500
     
-    file_content = response.content  # O arquivo em bytes
-
-    return send_file(
-        BytesIO(file_content), # cria um "arquivo" em memória
-        as_attachment=True, # enviar ao cliente como anexo
-        download_name=file_name # sugerir nome ao download
-    )
+    return jsonify({"message": "arquivo deletado"}), 401
 
 
 if __name__ == "__main__":
