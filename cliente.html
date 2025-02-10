@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente Web - API Gateway</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        .container {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Gerenciar Arquivos no API Gateway</h1>
+
+    <!-- Campo para enviar arquivo -->
+    <div class="container">
+        <label for="fileInput">Enviar Arquivo:</label>
+        <input type="file" id="fileInput" />
+        <button onclick="enviarArquivo()">Enviar Arquivo</button>
+    </div>
+
+    <!-- Campo para baixar arquivo -->
+    <div class="container">
+        <label for="fileNameDownload">Nome do Arquivo para Baixar:</label>
+        <input type="text" id="fileNameDownload" placeholder="Digite o nome do arquivo" />
+        <button onclick="baixarArquivo()">Baixar Arquivo</button>
+    </div>
+
+    <!-- Campo para deletar arquivo -->
+    <div class="container">
+        <label for="fileNameDelete">Nome do Arquivo para Deletar:</label>
+        <input type="text" id="fileNameDelete" placeholder="Digite o nome do arquivo" />
+        <button onclick="deletarArquivo()">Deletar Arquivo</button>
+    </div>
+
+    <script>
+        const gatewayURL = "http://127.0.0.1:8000"; // Endereço do seu API Gateway
+
+        // Função para enviar arquivo
+        function enviarArquivo() {
+            const fileInput = document.getElementById('fileInput');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            fetch(`${gatewayURL}/upload`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json()).then(data => {
+                alert('Arquivo enviado com sucesso!');
+            })
+            .catch(error => {
+                alert('Erro ao enviar arquivo');
+                console.error(error);
+            });
+        }
+
+        // Função para baixar arquivo
+        function baixarArquivo() {
+            const fileName = document.getElementById('fileNameDownload').value;
+            
+            if (!fileName) {
+                alert('Por favor, insira o nome do arquivo');
+                return;
+            }
+
+            fetch(`${gatewayURL}/download?fileName=${fileName}`, {
+                method: 'GET'
+            })
+            .then(response => response.blob()) // Assume que o arquivo é binário (como uma imagem ou vídeo)
+            .then(blob => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName; // O nome do arquivo que será baixado
+                link.click();
+            })
+            .catch(error => {
+                alert('Erro ao baixar arquivo');
+                console.error(error);
+            });
+        }
+
+        // Função para deletar arquivo
+        function deletarArquivo() {
+            const fileName = document.getElementById('fileNameDelete').value;
+            
+            if (!fileName) {
+                alert('Por favor, insira o nome do arquivo');
+                return;
+            }
+
+            fetch(`${gatewayURL}/delete/${fileName}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Arquivo deletado com sucesso!');
+                console.log(data);
+            })
+            .catch(error => {
+                alert('Erro ao deletar arquivo');
+                console.error(error);
+            });
+        }
+    
+    </script>
+</body>
+</html>

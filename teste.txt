@@ -1,0 +1,23 @@
+
+    # usando comprehension para pegar as chaves de valores do cabeçalho da requisição
+    # eles tem que ser repassados para o endpoint
+    headers = {key: value for key, value in request.headers if key != "Host"}
+
+    # requisição feita para salvar o arquivo
+    response = requests.request(
+        method=request.method,
+        url=url,
+        headers=headers,
+        params=request.args,
+        json=request.get_json(silent=True)
+    )
+
+    dados_resposta = response.json()
+
+    dados_resposta["_links"] ={
+        "self": {"href": url},
+        "next": {"href": f"{url}/delete"},
+        "prev": {"href": f"{url}/dowload"}
+    }
+
+    return jsonify(dados_resposta), response.status_code
