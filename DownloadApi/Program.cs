@@ -11,7 +11,7 @@ var api = builder.Build();
 api.UseHttpsRedirection();
 
 // Endpoint para baixar o arquivo via XML
-api.MapGet("/download", async (HttpContext context) =>
+api.MapPost("/download", async (HttpContext context) =>
 {
     try
     {
@@ -22,7 +22,7 @@ api.MapGet("/download", async (HttpContext context) =>
         
         Console.WriteLine("2. XML recebido:");
 
-        var serializer = new XmlSerializer(typeof(DeleteRequest));
+        var serializer = new XmlSerializer(typeof(DownloadRequest));
         
         Console.WriteLine("3. Iniciando desserialização");
         using var stringReader = new StringReader(xmlContent);

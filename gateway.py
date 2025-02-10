@@ -1,6 +1,7 @@
 import base64
 import requests
 from flask_cors import CORS
+from io import BytesIO
 from flask import Flask, request, jsonify, send_file
 
 app = Flask(__name__)
@@ -33,6 +34,39 @@ def upload_arquivo():
     print(f"📡 Corpo da resposta: {response.text}")
 
     return jsonify({"message": "arquivo foi salvo"}), response.status_code
+
+
+@app.route("/download", methods=["GET"])
+def download_arquivo():
+    
+    file_name = request.args.get('fileName')
+
+    if not file_name:
+        return jsonify({"message": "Nome do arquivo não informado"}), 400
+    
+    xml_data = f"""
+        <DownloadRequest>
+            <FileName>{file_name}</FileName>
+        </DownloadRequest>
+    """
+
+    url = "http://127.0.0.1:8002/download"
+
+    # Enviar XML para a API C# usando requests
+    headers = {'Content-Type': 'application/xml'}
+
+    response = requests.post(url=url, data=xml_data, headers=headers)
+
+    if response.status_code != 200:
+        return jsonify({"message": "Erro ao buscar arquivo na API C#"}), 500
+    
+    file_content = response.content  # O arquivo em bytes
+
+    return send_file(
+        BytesIO(file_content), # cria um "arquivo" em memória
+        as_attachment=True, # enviar ao cliente como anexo
+        download_name=file_name # sugerir nome ao download
+    )
 
 
 @app.route("/delete", methods=["DELETE"])
