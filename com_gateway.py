@@ -9,7 +9,7 @@ from flask_restx import Api, Resource, fields
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/upload": {"origins": "http://localhost:5500"}})
 
 # Criando a instância do Swagger (Api do Flask-RESTPlus)
 api = Api(app, version='1.0', title='API de Upload', description='Documentação para upload, download e exclusão de arquivos via SOAP')
@@ -35,11 +35,16 @@ class Upload(Resource):
         if 'file' not in request.files:
             return jsonify({"message": "nenhum arquivo"}), 400
 
-        file = request.files['file']
+        file = request.files['file'] # Extrai o  arquivo do FormData
 
-        file_name = request.form.get('filename')
+        file_name = request.form.get('filename') # Extrai o nome do arquivo do FormData
 
-        print('aqui')
+        print(file)
+
+        print(file_name)
+
+        if not file_name:
+            file_name = file.filename # Usa o nome do arquivo enviado pelo cliente
 
         file_content = base64.b64encode(file.read()).decode('utf-8')
 
@@ -55,28 +60,17 @@ class Upload(Resource):
         </s:Envelope>
         """
 
-        print('aqui')
         headers = {
             "Content-Type": "text/xml; charset=utf-8",
             "SOAPAction": os.getenv("UPLOAD_SOAP_ACTION")
         }
 
-        print('aqui')
         response = requests.post(url=url, headers=headers, data=xml_request)
 
         print(response.content)
 
-        # return jsonify({
-        #     "message": "arquivo salvo",
-        #     "links": [
-        #         {"rel": "self", "href": "http://127.0.0.1:8000/upload", "method": "POST"},
-        #         {"rel": "delete", "href": "http://127.0.0.1:8000/delete", "method": "DELETE"},
-        #         {"rel": "download", "href": "http://127.0.0.1:8000/download?fileName=exemplo.png", "method": "GET"},
-        #     ]
-        # }), 200
-
-        print('aqui')
-        return jsonify({"message": "Arquivo enviado com sucesso!"}), 200
+        # print('aqui')
+        # return jsonify({"message": "Arquivo enviado com sucesso!"}), 200
 
 # @api.route("/download")
 # class Download(Resource):

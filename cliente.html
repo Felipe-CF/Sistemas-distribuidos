@@ -59,8 +59,12 @@
         // Função para enviar arquivo
         function enviarArquivo() {
             const fileInput = document.getElementById('fileInput');
+
             const formData = new FormData();
+
             formData.append('file', fileInput.files[0]);
+
+            formData.append('filename', fileInput.files[0].name)
 
             fetch(`${gatewayURL}/upload`, {
                 method: 'POST',
