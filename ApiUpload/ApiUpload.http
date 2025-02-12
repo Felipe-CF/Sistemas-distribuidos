@@ -1,6 +1,0 @@
-@ApiUpload_HostAddress = http://localhost:8000
-
-GET {{ApiUpload_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

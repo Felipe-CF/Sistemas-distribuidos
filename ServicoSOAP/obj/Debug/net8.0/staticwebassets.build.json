@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "SlHGD2WtBU3MfUIeNhYWXFz+TZW5GPymiQFdnjJBX0s=",
+  "Source": "ServicoSOAP",
+  "BasePath": "_content/ServicoSOAP",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
