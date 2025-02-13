@@ -82,7 +82,7 @@
         // Função para baixar arquivo
         function baixarArquivo() {
             const fileName = document.getElementById('fileNameDownload').value;
-            
+
             if (!fileName) {
                 alert('Por favor, insira o nome do arquivo');
                 return;
@@ -91,12 +91,20 @@
             fetch(`${gatewayURL}/download?fileName=${fileName}`, {
                 method: 'GET'
             })
-            .then(response => response.blob()) // Assume que o arquivo é binário (como uma imagem ou vídeo)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao baixar arquivo');
+                }
+                return response.blob(); // Converte a resposta em um Blob
+            })
             .then(blob => {
                 const link = document.createElement('a');
+
                 link.href = URL.createObjectURL(blob);
-                link.download = fileName; // O nome do arquivo que será baixado
-                link.click();
+
+                link.download = fileName; // Define o nome do arquivo para download
+                
+                link.click(); // Dispara o download
             })
             .catch(error => {
                 alert('Erro ao baixar arquivo');

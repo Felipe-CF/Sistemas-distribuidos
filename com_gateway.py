@@ -6,6 +6,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, send_file
 from flask_restx import Api, Resource, fields
+import xml.etree.ElementTree as ET  # Importe a biblioteca para manipulação de XM
 
 
 app = Flask(__name__)
@@ -72,36 +73,72 @@ class Upload(Resource):
         # print('aqui')
         # return jsonify({"message": "Arquivo enviado com sucesso!"}), 200
 
-# @api.route("/download")
-# class Download(Resource):
-#     @api.doc('Baixa um arquivo')
-#     def get(self):
-#         file_name = request.args.get('fileName')
+@api.route("/download")
+class Download(Resource):
+    @api.doc('Baixa um arquivo')
+    def get(self):
+        file_name = request.args.get('fileName')  # Obtém o nome do arquivo da query string
 
-#         if not file_name:
-#             return jsonify({"message": "Nome do arquivo não informado"}), 400
+        if not file_name:
+            return jsonify({"message": "Nome do arquivo não informado"}), 400
 
-#         xml_data = f"""
-#             <DownloadRequest>
-#                 <FileName>{file_name}</FileName>
-#             </DownloadRequest>
-#         """
+        # Formata a requisição SOAP para o serviço de download
+        xml_request = f"""<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+        <s:Body>
+            <DownloadArquivo xmlns="http://tempuri.org/">
+                <nomeArquivo>{file_name}</nomeArquivo>
+            </DownloadArquivo>
+        </s:Body>
+        </s:Envelope>
+        """
 
-#         url = "http://127.0.0.1:8002/download"
-#         headers = {'Content-Type': 'application/xml'}
+        # Configura os headers para a requisição SOAP
+        headers = {
+            "Content-Type": "text/xml; charset=utf-8",
+            "SOAPAction": os.getenv("DOWNLOAD_SOAP_ACTION")  # Ação SOAP para o download
+        }
 
-#         response = requests.post(url=url, data=xml_data, headers=headers)
+        # Envia a requisição para o serviço SOAP
+        url = os.getenv("DOWNLOAD_SOAP_URL")
+        response = requests.post(url=url, headers=headers, data=xml_request)
 
-#         if response.status_code != 200:
-#             return jsonify({"message": "Erro ao buscar arquivo na API C#"}), 500
+        # Verifica se a requisição foi bem-sucedida
+        if response.status_code != 200:
+            return jsonify({"message": "Erro ao buscar arquivo na API SOAP"}), 500
 
-#         file_content = response.content
+        # Analisa o XML de resposta
+        try:
+            # Remove namespaces para facilitar a análise
+            namespaces = {
+                's': 'http://schemas.xmlsoap.org/soap/envelope/',
+                '': 'http://tempuri.org/'  # Namespace padrão do serviço SOAP
+            }
 
-#         return send_file(
-#             BytesIO(file_content),
-#             as_attachment=True,
-#             download_name=file_name
-#         )
+            # Converte o conteúdo da resposta em um objeto XML
+            root = ET.fromstring(response.content)
+
+            # Extrai o conteúdo de <DownloadArquivoResult>
+            download_result = root.find(
+                './/DownloadArquivoResult',
+                namespaces
+            )
+
+            if download_result is None:
+                return jsonify({"message": "Tag <DownloadArquivoResult> não encontrada na resposta"}), 500
+
+            # Converte o conteúdo de <DownloadArquivoResult> de base64 para bytes
+            file_content = base64.b64decode(download_result.text)
+
+        except Exception as e:
+            return jsonify({"message": f"Erro ao processar a resposta SOAP: {str(e)}"}), 500
+
+        # Retorna o arquivo para o cliente
+        return send_file(
+            BytesIO(file_content),  # Conteúdo binário do arquivo
+            as_attachment=True,    # Força o download
+            download_name=file_name,  # Nome do arquivo
+            mimetype='application/octet-stream'  # Tipo MIME genérico para arquivos binários
+        )
 
 # @api.route("/delete")
 # class Delete(Resource):
