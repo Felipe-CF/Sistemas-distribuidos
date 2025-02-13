@@ -69,7 +69,12 @@ public class DeleteServico : IDeleteServico
 
             File.Delete(filePath);
 
-            return "Arquivo foi deletado com sucesso!";
+            if(!File.Exists(filePath))
+                return "Arquivo foi deletado com sucesso!";
+
+            else
+                throw new Exception("o arquivo não foi deletado");
+
         }
         catch (Exception ex)
         {

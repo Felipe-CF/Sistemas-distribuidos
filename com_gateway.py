@@ -6,11 +6,20 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, send_file
 from flask_restx import Api, Resource, fields
-import xml.etree.ElementTree as ET  # Importe a biblioteca para manipulação de XM
+import xml.etree.ElementTree as ET  # Importe a biblioteca para manipulação de XML
 
 
 app = Flask(__name__)
-CORS(app, resources={r"/upload": {"origins": "http://localhost:5500"}})
+
+# adição em todas as rotas do gateway da permissão de origem e dos métodos do cliente
+CORS(app, resources={
+    r"/*": {
+        "origins": "http://localhost:5500",
+        "methods": ["GET", "POST", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
+
 
 # Criando a instância do Swagger (Api do Flask-RESTPlus)
 api = Api(app, version='1.0', title='API de Upload', description='Documentação para upload, download e exclusão de arquivos via SOAP')
@@ -19,6 +28,13 @@ api = Api(app, version='1.0', title='API de Upload', description='Documentação
 file_upload_model = api.model('FileUploadRequest', {
     'file': fields.String(required=True, description='Arquivo a ser enviado em formato base64'),
 })
+
+
+@app.before_request
+def log_request_info():
+    app.logger.debug('Headers: %s', request.headers)
+    app.logger.debug('Body: %s', request.get_data())
+
 
 @api.route("/upload")
 class Upload(Resource):
@@ -72,6 +88,8 @@ class Upload(Resource):
 
         # print('aqui')
         # return jsonify({"message": "Arquivo enviado com sucesso!"}), 200
+
+
 
 @api.route("/download")
 class Download(Resource):
@@ -140,38 +158,51 @@ class Download(Resource):
             mimetype='application/octet-stream'  # Tipo MIME genérico para arquivos binários
         )
 
-# @api.route("/delete")
-# class Delete(Resource):
-#     @api.doc('Deleta um arquivo')
-#     def delete(self):
-#         file_name = request.get_json().get('fileName')
 
-#         if not file_name:
-#             return jsonify({"message": "Nome do arquivo não informado"}), 400
 
-#         xml_data = f"""
-#             <DeleteRequest>
-#                 <FileName>{file_name}</FileName>
-#             </DeleteRequest>
-#         """
+@api.route("/delete")
+class Delete(Resource):
+    @api.doc('Deleta um arquivo')
+    def delete(self):
+        file_name = request.get_json().get('fileName')
 
-#         url = "http://127.0.0.1:8002/delete"
-#         headers = {'Content-Type': 'application/xml'}
+        app.logger.debug(f"Deletando arquivo: {file_name}")
+        if not file_name:
+            return jsonify({"message": "Nome do arquivo não informado"}), 400
 
-#         response = requests.post(url=url, data=xml_data, headers=headers)
+        xml_request = f"""<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+        <s:Body>
+            <DeleteArquivo xmlns="http://tempuri.org/">
+                <nomeArquivo>{file_name}</nomeArquivo>
+            </DeleteArquivo>
+        </s:Body>
+        </s:Envelope>
+        """
 
-#         if response.status_code != 200:
-#             return jsonify({"message": "Erro ao buscar arquivo na API C#"}), 500
+        # Configura os headers para a requisição SOAP
+        headers = {
+            "Content-Type": "text/xml; charset=utf-8",
+            "SOAPAction": os.getenv("DELETE_SOAP_ACTION")  # Ação SOAP para o download
+        }
 
-#         return jsonify({
-#             "message": "arquivo deletado",
-#             "links": [
-#                 {"rel": "self", "href": "http://127.0.0.1:8000/delete", "method": "DELETE"},
-#                 {"rel": "download", "href": "http://127.0.0.1:8000/download?fileName=exemplo.png", "method": "GET"},
-#                 {"rel": "upload", "href": "http://127.0.0.1:8000/upload", "method": "POST"},
-#             ]
-#         }), 200
+        # Envia a requisição para o serviço SOAP
+        url = os.getenv("DELETE_SOAP_URL")
 
+        print(file_name)
+
+        response = requests.post(url=url, headers=headers, data=xml_request)
+        
+        if response.status_code != 200:
+            return jsonify({"message": "Erro ao buscar arquivo na API C#"}), 500
+
+        return jsonify({
+            "message": f"arquivo {file_name} deletado com sucesso",
+        }), 200
+
+    @api.doc('Opções para deletar um arquivo')
+    def options(self):
+        app.logger.debug("OPTIONS request received for /delete")
+        return '', 200  # Retorna um JSON vazio com status 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
