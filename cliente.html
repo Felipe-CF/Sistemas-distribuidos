@@ -114,45 +114,35 @@
 
         // Função para deletar arquivo
         function deletarArquivo() {
-            const fileName = document.getElementById('fileNameDelete').value;
+    const fileName = document.getElementById('fileNameDelete').value;
 
-            if (!fileName) {
-                alert('Por favor, insira o nome do arquivo');
-                return;
-            }
+    if (!fileName) {
+        alert('Por favor, insira o nome do arquivo');
+        return;
+    }
 
-            console.log(`Tentando deletar arquivo: ${fileName}`);
-
-            fetch(`${gatewayURL}/delete`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ fileName: fileName })
-            })
-            .then(response => {
-                console.log(`Resposta recebida. Status: ${response.status}`);
-                console.log('Headers:', response.headers);
-                return response.text().then(text => {
-                    try {
-                        return JSON.parse(text);
-                    } catch (e) {
-                        console.log('Resposta não é JSON:', text);
-                        throw new Error('Resposta inválida do servidor');
-                    }
-                });
-            })
-            .then(data => {
-                console.log('Resposta do servidor:', data);
-                alert(`Arquivo "${fileName}" deletado com sucesso!`);
-                document.getElementById('fileNameDelete').value = '';
-            })
-            .catch(error => {
-                console.error('Erro detalhado:', error);
-                alert(`Erro ao deletar arquivo "${fileName}": ${error.message}`);
-            });
+    fetch(`${gatewayURL}/delete`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'  // Certifique-se de que este cabeçalho está presente
+        },
+        body: JSON.stringify({ fileName: fileName })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Falha ao deletar arquivo. Status: ${response.status}`);
         }
-    
+        return response.json();
+    })
+    .then(data => {
+        alert(`Arquivo "${fileName}" deletado com sucesso!`);
+        document.getElementById('fileNameDelete').value = '';
+    })
+    .catch(error => {
+        alert(`Erro ao deletar arquivo "${fileName}": ${error.message}`);
+    });
+}
+            
     </script>
 </body>
 </html>

@@ -16,7 +16,8 @@ CORS(app, resources={
     r"/*": {
         "origins": "http://localhost:5500",
         "methods": ["GET", "POST", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"]
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_cridentials": True
     }
 })
 
@@ -160,13 +161,12 @@ class Download(Resource):
 
 
 
-@api.route("/delete")
+@api.route("/delete", methods=["DELETE"])
 class Delete(Resource):
     @api.doc('Deleta um arquivo')
     def delete(self):
         file_name = request.get_json().get('fileName')
 
-        app.logger.debug(f"Deletando arquivo: {file_name}")
         if not file_name:
             return jsonify({"message": "Nome do arquivo não informado"}), 400
 
@@ -179,30 +179,24 @@ class Delete(Resource):
         </s:Envelope>
         """
 
-        # Configura os headers para a requisição SOAP
         headers = {
             "Content-Type": "text/xml; charset=utf-8",
-            "SOAPAction": os.getenv("DELETE_SOAP_ACTION")  # Ação SOAP para o download
+            "SOAPAction": os.getenv("DELETE_SOAP_ACTION")
         }
 
-        # Envia a requisição para o serviço SOAP
         url = os.getenv("DELETE_SOAP_URL")
 
-        print(file_name)
-
         response = requests.post(url=url, headers=headers, data=xml_request)
-        
+
         if response.status_code != 200:
-            return jsonify({"message": "Erro ao buscar arquivo na API C#"}), 500
+            return jsonify({"message": "Erro ao deletar arquivo na API SOAP"}), 500
 
         return jsonify({
-            "message": f"arquivo {file_name} deletado com sucesso",
+            "message": f"Arquivo {file_name} deletado com sucesso",
         }), 200
 
-    @api.doc('Opções para deletar um arquivo')
-    def options(self):
-        app.logger.debug("OPTIONS request received for /delete")
-        return '', 200  # Retorna um JSON vazio com status 200
 
+    
+    
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
