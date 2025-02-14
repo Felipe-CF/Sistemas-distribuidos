@@ -1,23 +1,20 @@
 # HATEOAS (Hypermedia As The Engine Of Application State)
 
-## O que é?
-As respostas da API não apenas retornam dados, mas também fornecem informações sobre ações possíveis ou links relacionados com o estado atual. Isso permite que o cliente descubra, dinamicamente, como interagir com a API através das respostas.
+## Introdução
+HATEOAS é um conceito no qual as respostas da API retornam além de dados, fornecem informações sobre as possíveis ações ou links relacionados com o estado atual. Isso permite que o cliente descubra dinamicamente como interagir com a API através das respostas
 
+## Implementação
+Ao enviar o arquivo para ser salvo na "nuvem", a API Gateway retorna um JSON contendo um campo ```_links```. Esse campo inclui informações sobre o endpoint da requisição feita e outras possíveis ações, tais como: deletar e baixar arquivos. 
 
-## Como se apresenta aqui?
-Ao enviar o arquivo para ser salvo na "nuvem", a api gateway retorna um json com um campo "_links", ele contém informações sobre o endpoint da requisição feita e de outros possíveis passos que podem ser feitos (como deletar e baixar o arquivo)
+# Documentação da API Gateway com Flask-Swagger-UI
 
-
-
-# Documentação Gateway - Flask-Swagger-UI
-
-## Instalar dependências
+## Instalação das dependências
 
 ```
 pip install flask-swagger-ui 
 ```
 
-## Adicionar ao gateway
+## Configuração do Swagger no Gateway
 
 ```
 from flask_swagger_ui import get_swaggerui_blueprint
@@ -37,7 +34,7 @@ app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 ```
 
-## Acessar swagger
+## Acessando o Swagger
 
 ````
 http://localhost:5000/swagger
@@ -46,15 +43,16 @@ http://localhost:5000/swagger
 
 # Servidor SOAP
 
-## Instalar a biblioteca Spyne
+## Instalação a biblioteca Spyne
 ````
 pip install spyne
 ````
 
 
-# XML
+# Exemplo de requisição XML
 
-## Estrutura 
+## Estrutura do XML
+
 ````
 <?xml version="1.0"?>
 
@@ -73,49 +71,14 @@ pip install spyne
 </soapenv:Envelope>
 ````
 
-> \<soapenv:Envelope> : Define o início da requisição SOAP.
-
-> \<soapenv:Header>: Pode ser usado para autenticação, mas é opcional.
-
-> \<soapenv:Body>: Contém a requisição real, com o método ConvertCelsiusToFahrenheit.
-
-> \<temp:Celsius>: Parâmetro passado para o serviço.
-
-
-# XML
-
-## Estrutura 
-````
-<?xml version="1.0"?>
-
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                  xmlns:temp="http://exemplo.com/temperatura">
-   <soapenv:Header/>
-
-   <soapenv:Body>
-
-      <temp:ConvertCelsiusToFahrenheit>
-         <temp:Celsius>30</temp:Celsius>
-      </temp:ConvertCelsiusToFahrenheit>
-      
-   </soapenv:Body>
-
-</soapenv:Envelope>
-````
-
-> \<soapenv:Envelope> : Define o início da requisição SOAP.
-
-> \<soapenv:Header>: Pode ser usado para autenticação, mas é opcional.
-
-> \<soapenv:Body>: Contém a requisição real, com o método ConvertCelsiusToFahrenheit.
-
-> \<temp:Celsius>: Parâmetro passado para o serviço.
-
-
+- ```<soapenv:Envelope>```: define o início da requisição SOAP.
+- ```<soapenv:Header>```: pode ser usado para autenticação.
+- ```<soapenv:Body>```: contém a requisição real com o método ```ConvertCelsiusToFahrenheit```.
+- ```temp:Celsius>```: parâmetro passado para o serviço.
 
 # API C#
 
-## Estrutura 
+## Criação do projeto web API com suporte a XML
 ````
 dotnet new webapi -n XmlApiExample
 
@@ -125,11 +88,4 @@ dotnet add package Microsoft.AspNetCore.Mvc.Formatters.Xml
 
 
 ````
-
-> \<soapenv:Envelope> : Define o início da requisição SOAP.
-
-> \<soapenv:Header>: Pode ser usado para autenticação, mas é opcional.
-
-> \<soapenv:Body>: Contém a requisição real, com o método ConvertCelsiusToFahrenheit.
-
-> \<temp:Celsius>: Parâmetro passado para o serviço.
+Agora a API estará pronta para lidar com as requisições e respostas no formato XML.
