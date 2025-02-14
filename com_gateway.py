@@ -1,6 +1,8 @@
 import os
 import base64
 import requests
+from zeep import Client
+from zeep.exceptions import Fault
 from io import BytesIO
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -8,13 +10,12 @@ from flask import Flask, request, jsonify, send_file
 from flask_restx import Api, Resource, fields
 import xml.etree.ElementTree as ET  # Importe a biblioteca para manipulação de XML
 
-
 app = Flask(__name__)
 
 # adição em todas as rotas do gateway da permissão de origem e dos métodos do cliente
 CORS(app, resources={
     r"/*": {
-        "origins": "http://localhost:5500",
+        "origins": "http://127.0.0.1:5500",
         "methods": ["GET", "POST", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
         "supports_cridentials": True
@@ -30,11 +31,6 @@ file_upload_model = api.model('FileUploadRequest', {
     'file': fields.String(required=True, description='Arquivo a ser enviado em formato base64'),
 })
 
-
-@app.before_request
-def log_request_info():
-    app.logger.debug('Headers: %s', request.headers)
-    app.logger.debug('Body: %s', request.get_data())
 
 
 @api.route("/upload")
@@ -161,40 +157,26 @@ class Download(Resource):
 
 
 
-@api.route("/delete", methods=["DELETE"])
+@api.route("/delete", methods=["DELETE", "OPTIONS"])
 class Delete(Resource):
     @api.doc('Deleta um arquivo')
     def delete(self):
-        file_name = request.get_json().get('fileName')
 
-        if not file_name:
-            return jsonify({"message": "Nome do arquivo não informado"}), 400
+        try:
+            file_name = request.get_json().get('fileName')
 
-        xml_request = f"""<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
-        <s:Body>
-            <DeleteArquivo xmlns="http://tempuri.org/">
-                <nomeArquivo>{file_name}</nomeArquivo>
-            </DeleteArquivo>
-        </s:Body>
-        </s:Envelope>
-        """
+            if not file_name:
+                return jsonify({"message": "Nome do arquivo não informado"}), 400
 
-        headers = {
-            "Content-Type": "text/xml; charset=utf-8",
-            "SOAPAction": os.getenv("DELETE_SOAP_ACTION")
-        }
+            client = Client('http://127.0.0.1:8002/DeleteServico?wsdl')
 
-        url = os.getenv("DELETE_SOAP_URL")
+            response = client.service.DeleteArquivo(file_name)
 
-        response = requests.post(url=url, headers=headers, data=xml_request)
-
-        if response.status_code != 200:
-            return jsonify({"message": "Erro ao deletar arquivo na API SOAP"}), 500
-
-        return jsonify({
-            "message": f"Arquivo {file_name} deletado com sucesso",
-        }), 200
-
+        except Fault as fault:
+            return jsonify({ "message": "erro ao deletar"}), 500
+    
+    def options(self):
+        pass
 
     
     

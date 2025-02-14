@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="CoreWCF.Http" Version="1.7.0" />
     <PackageReference Include="CoreWCF.Primitives" Version="1.7.0" />
+    <PackageReference Include="RabbitMQ.Client" Version="7.0.0" />
   </ItemGroup>
 
 </Project>

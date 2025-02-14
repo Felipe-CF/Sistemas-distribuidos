@@ -50,6 +50,10 @@
             "CoreWCF.Primitives": {
               "target": "Package",
               "version": "[1.7.0, )"
+            },
+            "RabbitMQ.Client": {
+              "target": "Package",
+              "version": "[7.0.0, )"
             }
           },
           "imports": [

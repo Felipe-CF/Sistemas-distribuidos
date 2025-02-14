@@ -2,7 +2,6 @@ using CoreWCF; // criar serviços SOAP
 using CoreWCF.Configuration; // configurar serviços WCF
 using CoreWCF.Description; // classes para descrever e expor metadados do serviço (como o WSDL)
 
-
 // permite configurar a aplicação antes de rodá-la 
 var builder = WebApplication.CreateBuilder(args); 
 
@@ -45,6 +44,9 @@ app.UseServiceModel(serviceBuilder =>
 
     serviceMetadataBehavior.HttpGetEnabled = true; // Permite acesso ao metadado do WSDL
 });
+
+
+
 
 
 app.Run(); // a api começa a rodar
