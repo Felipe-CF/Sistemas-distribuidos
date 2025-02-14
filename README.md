@@ -16,7 +16,7 @@ pip install flask-swagger-ui
 
 ## Configuração do Swagger no Gateway
 
-```
+```python
 from flask_swagger_ui import get_swaggerui_blueprint
 
 SWAGGER_URL = '/swagger'
@@ -36,24 +36,24 @@ app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 ## Acessando o Swagger
 
-````
+```
 http://localhost:5000/swagger
-````
+```
 
 
 # Servidor SOAP
 
 ## Instalação a biblioteca Spyne
-````
+```
 pip install spyne
-````
+```
 
 
 # Exemplo de requisição XML
 
 ## Estrutura do XML
 
-````
+```xml
 <?xml version="1.0"?>
 
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
@@ -69,7 +69,7 @@ pip install spyne
    </soapenv:Body>
 
 </soapenv:Envelope>
-````
+```
 
 - ```<soapenv:Envelope>```: define o início da requisição SOAP.
 - ```<soapenv:Header>```: pode ser usado para autenticação.
@@ -79,7 +79,8 @@ pip install spyne
 # API C#
 
 ## Criação do projeto web API com suporte a XML
-````
+
+```bash 
 dotnet new webapi -n XmlApiExample
 
 cd XmlApiExample
@@ -87,5 +88,5 @@ cd XmlApiExample
 dotnet add package Microsoft.AspNetCore.Mvc.Formatters.Xml
 
 
-````
+```
 Agora a API estará pronta para lidar com as requisições e respostas no formato XML.
