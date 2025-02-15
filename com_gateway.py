@@ -1,20 +1,19 @@
 import os
+import pika
+import time
+import json
 import base64
-import requests
-from io import BytesIO
-from zeep import Client
 from flask_cors import CORS
 from dotenv import load_dotenv
 from zeep.exceptions import Fault
-import xml.etree.ElementTree as ET  # Importe a biblioteca para manipulação de XML
 from flask_restx import Api, Resource, fields
 from flask import Flask, request, jsonify, send_file
 
 
+app = Flask(__name__)
+
 # variaveis de ambiente carregadas e disponíveis para todos os endpoints da API
 load_dotenv("C:\\Users\\FelipeCF\\Desktop\\Codigos\\Sistemas-distribuidos\\.env")
-
-app = Flask(__name__)
 
 # adição em todas as rotas do gateway da permissão de origem e dos métodos do cliente
 CORS(app, resources={
@@ -36,6 +35,11 @@ file_upload_model = api.model('FileUploadRequest', {
 })
 
 
+# função que cria uma conexão com o rabbitMQ
+def queue_message_connection():
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    return connection
+
 
 @api.route("/upload")
 class Upload(Resource):
@@ -56,11 +60,26 @@ class Upload(Resource):
 
         file_content = base64.b64encode(file.read()).decode('utf-8')
 
-        url_wsdl = os.getenv('CLIENTE_UPLOAD')
+        # mensagem json para ser enviada para a fila            
+        json_message ={
+            "url_wsdl": os.getenv('CLIENTE_UPLOAD'),
+            "service": "upload",
+            "file": file_content,
+            "file_name": file_name
+        }
 
-        cliente = Client(url_wsdl)
+        # cria a conexão com a fila de mensagem
+        connection = queue_message_connection()
 
-        response = cliente.service.UploadArquivo(file_name, file_content)
+        # cria canal de comunicação com a fila
+        channel = connection.channel()
+
+        # declaro o rotulo da fila
+        channel.queue_declare(queue='gateway')
+
+        # insiro a mensagem na fila
+        channel.basic_publish(exchange='', routing_key='gateway', body=json.dumps(json_message))
+
 
 
 @api.route("/download")
@@ -72,22 +91,44 @@ class Download(Resource):
         if not file_name:
             return jsonify({"message": "Nome do arquivo não informado"}), 400
         
+
+        # mensagem json para ser enviada para a fila            
+        json_message ={
+            "url_wsdl": os.getenv('CLIENTE_DOWNLOAD'),
+            "service": "download",
+            "file": None,
+            "file_name": file_name
+        }
+
+        # cria a conexão com a fila de mensagem
+        connection = queue_message_connection()
+
+        # cria canal de comunicação com a fila
+        channel = connection.channel()
+
+        # declaro o rotulo da fila
+        channel.queue_declare(queue='gateway')
+
+        # insiro a mensagem na fila
+        channel.basic_publish(exchange='', routing_key='gateway', body=json.dumps(json_message))
+
+        file_returned = os.path.join("temp", json_message['file_name'])
+
+        timer = 0
+
+        while not os.path.exists(file_returned):
+
+            time.sleep(1)
+
+            timer += 1
+
+            if timer == 30:
+                return "erro ao baixar"
         
-        url_wsdl = os.getenv('CLIENTE_DOWNLOAD')
+        return send_file(file_returned, as_attachment=True)
 
-        client = Client(url_wsdl)
 
-        file_content = client.service.DownloadArquivo(file_name)
 
-        temp_file = os.path.join(file_name)
-
-        dir = os.path.dirname(os.path.abspath(__file__)) + "//temp"
-
-        temp_file_path = os.path.join(dir, file_name)
-        with open(temp_file_path, 'wb') as f:
-            f.write(file_content)
-
-        return send_file(temp_file, as_attachment=True)
 
 
 
@@ -96,24 +137,31 @@ class Delete(Resource):
     @api.doc('Deleta um arquivo')
     def delete(self):
 
-        try:
-            file_name = request.get_json().get('fileName')
+        file_name = request.get_json().get('fileName')
 
-            if not file_name:
-                return jsonify({"message": "Nome do arquivo não informado"}), 400
+        # mensagem json para ser enviada para a fila            
+        json_message ={
+            "url_wsdl": os.getenv('CLIENTE_DELETE'),
+            "service": "delete",
+            "file": None,
+            "file_name": file_name
+        }
 
-            url_wsdl = os.getenv('CLIENTE_DELETE')
+        # cria a conexão com a fila de mensagem
+        connection = queue_message_connection()
 
-            client = Client(url_wsdl)
+        # cria canal de comunicação com a fila
+        channel = connection.channel()
 
-            response = client.service.DeleteArquivo(file_name)
+        # declaro o rotulo da fila
+        channel.queue_declare(queue='gateway')
 
-        except Fault as fault:
-            return jsonify({ "message": "erro ao deletar"}), 500
+        # insiro a mensagem na fila
+        channel.basic_publish(exchange='', routing_key='gateway', body=json.dumps(json_message))
+
     
     def options(self):
         pass
-
     
     
 if __name__ == "__main__":
