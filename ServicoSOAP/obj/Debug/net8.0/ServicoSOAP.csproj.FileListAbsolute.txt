@@ -72,3 +72,4 @@ C:\Users\FelipeCF\Desktop\Codigos\Sistemas-distribuidos\ServicoSOAP\obj\Debug\ne
 C:\Users\FelipeCF\Desktop\Codigos\Sistemas-distribuidos\ServicoSOAP\obj\Debug\net8.0\ServicoSOAP.pdb
 C:\Users\FelipeCF\Desktop\Codigos\Sistemas-distribuidos\ServicoSOAP\obj\Debug\net8.0\ServicoSOAP.genruntimeconfig.cache
 C:\Users\FelipeCF\Desktop\Codigos\Sistemas-distribuidos\ServicoSOAP\obj\Debug\net8.0\ref\ServicoSOAP.dll
+C:\Users\FelipeCF\Desktop\Codigos\Sistemas-distribuidos\ServicoSOAP\bin\Debug\net8.0\RabbitMQ.Client.dll
