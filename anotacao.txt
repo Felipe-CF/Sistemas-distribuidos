@@ -1,8 +1,0 @@
-
-1. Conceitos de Filas de Mensagens
-Produtor: É a aplicação que envia mensagens para a fila.
-Consumidor: É a aplicação que recebe mensagens da fila.
-Fila: É um buffer que armazena mensagens até que sejam processadas pelo consumidor.
-Exchange: É um componente que recebe mensagens do produtor e as roteia para uma ou mais filas.
-
-docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4.0-management
